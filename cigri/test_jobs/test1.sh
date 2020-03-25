@@ -1,3 +1,3 @@
-#!/usr/bin/env bash
+#!/run/current-system/sw/bin/sh
 echo $2 > $1
 sleep 30
