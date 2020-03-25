@@ -44,6 +44,20 @@ addCommon = x: lib.recursiveUpdate x common;
  apacheHttpdWithIdent = pkgs.apacheHttpd.overrideAttrs (oldAttrs: rec {
   configureFlags = oldAttrs.configureFlags ++ [ "--enable-ident" ]; });
 
+  defineNode = name: resources:
+    addCommon {
+      service.hostname=name;
+      nixos.configuration = {
+        services.oar.node = {
+          enable = true;
+          register = {
+            enable = true;
+            extraCommand = "/srv/common/prepare_oar_cgroup.sh init";
+            nbResources = resources;
+          };
+        };
+      };
+    };
 in
 
 {  
@@ -124,30 +138,6 @@ in
       };
     };
   };
-  
-  services.node1 = addCommon {
-    service.hostname="node1";
-    nixos.configuration = {
-      services.oar.node = {
-        enable = true;
-        register = {
-          enable = true;
-          extraCommand = "/srv/common/prepare_oar_cgroup.sh init";
-        };
-      };
-    };
-  };
-  
-  services.node2 = addCommon {
-    service.hostname="node2";
-    nixos.configuration = {
-      services.oar.node = {
-        enable = true;
-        register = {
-          enable = true;
-          extraCommand = "/srv/common/prepare_oar_cgroup.sh init";
-        };
-      };
-    };
-  };
+  # define a node with 100 resources
+  services.node1 = defineNode "node1" "100";
 }
