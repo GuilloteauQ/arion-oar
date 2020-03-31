@@ -6,7 +6,7 @@ import (fetchTarball https://github.com/NixOS/nixpkgs/archive/19.09.tar.gz) {
     nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
       inherit pkgs;
       repoOverrides = {
-        kapack = import /home/quentin/nur-kapack-quentin {inherit pkgs;};
+        kapack = import ~/nur-kapack {inherit pkgs;};
         # kapack = import (pkgs.fetchgit {
         #    url = https://github.com/oar-team/nur-kapack;
         #    rev = "521a345c64428a8fc7301b792987cda453074c57";
