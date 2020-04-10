@@ -6,6 +6,7 @@ let
 common = {
   
   service.volumes = [ "${builtins.getEnv "PWD"}/..:/srv" ];
+  service.capabilities = { SYS_ADMIN = true; }; # for nfs
   service.useHostStore = true;
   
   nixos.useSystemd = true;
@@ -17,7 +18,7 @@ common = {
     users.users.user1 = {isNormalUser = true;};
     users.users.user2 = {isNormalUser = true;};
     
-    environment.systemPackages = with pkgs; [ socat wget ruby ];
+    environment.systemPackages = with pkgs; [ nfs-utils socat wget ruby ];
     imports = lib.attrValues pkgs.nur.repos.kapack.modules;
     
     # oar user's key files
@@ -138,6 +139,14 @@ in
       };
     };
   };
+  services.fileserver = addCommon {
+    service.hostname="fileserver";
+    nixos.configuration = {
+      services.nfs.server.enable = true;
+      services.nfs.server.exports = ''/srv/shared *(rw,sync,no_subtree_check,no_root_squash,insecure)'';
+    };    
+  };
+  
   # define a node with 100 resources
-  services.node1 = defineNode "node1" "100";
+  services.node1 = defineNode "node1" "10";
 }
