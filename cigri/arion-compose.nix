@@ -148,5 +148,5 @@ in
   };
   
   # define a node with 100 resources
-  services.node1 = defineNode "node1" "10";
+  services.node1 = defineNode "node1" "12";
 }
