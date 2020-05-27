@@ -18,7 +18,7 @@ common = {
     users.users.user1 = {isNormalUser = true;};
     users.users.user2 = {isNormalUser = true;};
     
-    environment.systemPackages = with pkgs; [ nfs-utils socat wget ruby ];
+    environment.systemPackages = with pkgs; [ nfs-utils socat wget ruby openssh ];
     imports = lib.attrValues pkgs.nur.repos.kapack.modules;
     
     # oar user's key files
@@ -53,7 +53,11 @@ addCommon = x: lib.recursiveUpdate x common;
           enable = true;
           register = {
             enable = true;
-            extraCommand = "/srv/common/prepare_oar_cgroup.sh init";
+            extraCommand = ''
+              /srv/common/prepare_oar_cgroup.sh init
+              mkdir -p /mnt/shared
+              /run/current-system/sw/bin/mount -t nfs fileserver:/srv/shared /mnt/shared -o nolock
+            '';
             nbResources = resources;
           };
         };
@@ -113,7 +117,7 @@ in
   services.server = addCommon {
     service.hostname="server";
     nixos.configuration = {
-      environment.etc."oarapi-users" = {
+      environment.etc."oar/api-users" = {
         mode = "0644";
         text = ''
           user1:$apr1$yWaXLHPA$CeVYWXBqpPdN78e5FvbY3/
@@ -139,14 +143,18 @@ in
       };
     };
   };
+
   services.fileserver = addCommon {
     service.hostname="fileserver";
     nixos.configuration = {
       services.nfs.server.enable = true;
-      services.nfs.server.exports = ''/srv/shared *(rw,sync,no_subtree_check,no_root_squash,insecure)'';
+      # services.nfs.server.exports = ''/srv/shared *(rw,sync,no_subtree_check,no_root_squash,insecure)'';
+      # services.nfs.server.exports = ''/srv/shared *(rw,sync,no_subtree_check,no_root_squash,insecure)'';
+      services.nfs.server.exports = ''/srv/shared *(rw,no_subtree_check,no_root_squash)'';
     };    
   };
   
-  # define a node with 100 resources
-  services.node1 = defineNode "node1" "12";
+
+  services.node1 = defineNode "node1" "100";
 }
+

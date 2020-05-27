@@ -11,12 +11,11 @@
     }
   },
   "prologue": [
-    "mkdir /root/workdir",
-    "cd /root/workdir",
+    "cd /tmp",
     "touch prologue_works"
   ],
   "epilogue": [
-    "cd /root/workdir",
+    "cd /tmp",
     "touch epilogue_works"
   ],
   "params": [
