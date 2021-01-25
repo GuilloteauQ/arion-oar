@@ -13,7 +13,15 @@ common = {
   nixos.runWrappersUnsafe = true;
   nixos.configuration = {
     networking.firewall.enable = false;
+    services.openssh = {
+      enable = true;
+      ports = [ 22 ];
+      permitRootLogin = "yes";
+    };
     boot.tmpOnTmpfs = true;
+
+
+    boot.postBootCommands = "mkdir -p /root/.ssh; cp /srv/cigri/arion_key /root/.ssh/id_rsa; cp /srv/cigri/arion_key.pub /root/.ssh/id_rsa.pub; cat /srv/cigri/arion_key.pub > /root/.ssh/authorized_keys";
 
     users.users.user1 = {isNormalUser = true;};
     users.users.user2 = {isNormalUser = true;};
@@ -69,6 +77,8 @@ in
   services.cigri = addCommon {
     service.hostname="cigri";
     nixos.configuration = {
+    # boot.postBootCommands = "$(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no fileserver 'while true; do L=$(cat /proc/loadavg); D=$(date +%H:%M:%S); echo -e $D $L; sleep 2; done' > /tmp/loadavg_storage_server0 &)";
+    # boot.postBootCommands = "sh /srv/cigri/cigri-expe/misc/remote_loadavg_sensor.sh fileserver 0";
       services.cigri = {
         dbserver.enable = true;
         client.enable = true;
@@ -82,6 +92,17 @@ in
           host = "cigri";
           logfile = "/tmp/cigri.log";
         };        
+      };
+      services.fileserver_load = {
+        enable = true;
+        path = with pkgs; [ openssh bash ];
+        script = ''
+          while true
+          do
+            ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no fileserver 'L=$(cat /proc/loadavg); D=$(date +%H:%M:%S); echo -e $D $L' > /tmp/loadavg_storage_server0; sleep 2
+          done
+
+        '';
       };
       services.my-startup = {
         enable = true;
@@ -155,6 +176,6 @@ in
   };
   
 
-  services.node1 = defineNode "node1" "100";
+  services.node1 = defineNode "node1" "10";
 }
 
