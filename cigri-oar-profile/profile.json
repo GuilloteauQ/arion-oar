@@ -1,0 +1,29 @@
+{
+    "jobs": {
+        "heavy": {
+            "exec_time": 30,
+            "file_size": 100
+        },
+        "light": {
+            "exec_time": 30,
+            "file_size": 10
+        }
+    },
+    "submissions": [
+        {
+            "wait": 100,
+            "amount": 10,
+            "job_tag": "heavy"
+        },
+        {
+            "wait": 100,
+            "amount": 100,
+            "job_tag": "light"
+        },
+        {
+            "wait": 100,
+            "amount": 150,
+            "job_tag": "light"
+        }
+    ]
+}
